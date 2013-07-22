@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<home>
+    <name value="home">自家</name>
+    <links>
+         <link value="balcony">阳台</link>
+    </links>
+    <items>
+        <item value="bed">床</item>
+        <item value="chair">椅子</item>
+        <item value="game">游戏机</item>
+        <item value="tv">电视</item>
+    </items>
+    <persons></persons>
+    <effects></effects>
+</home>
