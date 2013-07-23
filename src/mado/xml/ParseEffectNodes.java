@@ -1,8 +1,9 @@
 package mado.xml;
 
+import java.util.LinkedList;
 import java.util.List;
 
-import org.w3c.dom.NodeList;
+import mado.AllEffect;
 
 public class ParseEffectNodes extends XmlParser{
 	private AllEffect effects;
@@ -24,16 +25,20 @@ public class ParseEffectNodes extends XmlParser{
 		return 1 << num;
 	}
 	
-	public void getEffects(int num)
+	public List<String> getEffectList(int num)
 	{
+		List<String> target = new LinkedList<String>();
 		int index = 0;
 		while(num % 2 != 0 || num/2 != 0)
 		{
 			if(num % 2 == 1)
-				System.out.println(list.get(index));
+			{
+				target.add(list.get(index));
+			}
 			index++;
 			num /= 2;
 		}
+		return target;
 	}
 	
 	public boolean haveEffect(int effects, String input)
@@ -51,7 +56,7 @@ public class ParseEffectNodes extends XmlParser{
 		// TODO Auto-generated method stub
 		ParseEffectNodes p = new ParseEffectNodes();
 		System.out.println(p.getNum("ºìÂÌµÆ"));
-		p.getEffects(223);
+		System.out.println(p.getEffectList(223));
 
 	}
 

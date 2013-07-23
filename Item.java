@@ -1,4 +1,4 @@
-package mado;
+
 
 public class Item {
 	//µÀ¾ßÃû
@@ -36,4 +36,6 @@ public class Item {
 	public int getEvalue() {
 		return ivalue;
 	}
+	
+	
 }

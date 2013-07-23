@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<madotsuki>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><madotsuki>
     <name>附窗子</name>
 	<effects>0</effects>
 	<location>自家</location>
+	<wake>1</wake>
 </madotsuki>

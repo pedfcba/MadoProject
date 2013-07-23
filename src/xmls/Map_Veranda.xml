@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <veranda>
-    <location>阳台</location>
-    <value>0</value>
+    <name>阳台</name>
     
-    <effects>
-        
-    </effects>
+    <links>
+        <link>自家</link> 
+    </links>
     
-    <item>
-        
-    </item>
+    <effects></effects>
     
-    <linked>
-         <location>
-             <name>自家</name> 
-             <value>Map_Home</value>
-         </location>
-    </linked>
+    <items>台阶</items>
+    
+    <persons></persons>
 </veranda>

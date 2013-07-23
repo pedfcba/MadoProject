@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <body>
-    <dir>src\xmls\</dir>
-    <home>\xmls\Map_Home.xml</home>
-    <person>\xmls\Person_Madotsuki.xml</person>
+    <dir>\src\xmls\</dir>
+    <effects value="effects">Effects.xml</effects>
+    <maps>
+    	<map value="自家">Map_Home.xml</map>
+    	<map value="阳台">Map_Veranda.xml</map>
+    </maps>
+    <persons>
+    	<person value="附窗子">Person_Madotsuki.xml</person>
+    </persons>
 </body>

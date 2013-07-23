@@ -1,5 +1,6 @@
 package mado.xml;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -9,21 +10,27 @@ import java.util.Random;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class XmlParser{
 	protected Document document;
-	
+	private String filepath;
+
 	public XmlParser()
 	{
 		init();
 	}
-	public void init()
+	private void init()
 	{
 		try 
 		{
@@ -36,13 +43,14 @@ public class XmlParser{
 		}
 	}
 
-	public NodeList getNodes(String fileName) {
+	public NodeList getNodes(final String fileName) {
 		// TODO Auto-generated method stub
 		NodeList nodes = null;
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			document = db.parse(fileName);
+			filepath = fileName;
 			nodes = document.getChildNodes();
 		}
 		catch (FileNotFoundException e) {
@@ -59,80 +67,6 @@ public class XmlParser{
 		}
 		return nodes;
 	}
-
-	/*	public void readNodes(NodeList list)
-	{
-		for(int i = 0; i < list.getLength(); i++)
-		{
-			System.out.println(i + ": ");
-			Node x = list.item(i);
-			System.out.println("getLocalName：");
-			System.out.println(x.getLocalName());
-			System.out.println("getNamespaceURI：");
-			System.out.println(x.getNamespaceURI());
-			System.out.println("NodeName:");
-			System.out.println(x.getNodeName());
-			System.out.println("NodeValue:");
-			System.out.println(x.getNodeValue());
-			System.out.println("TextContent");
-			System.out.println(x.getTextContent());
-			NodeList child = x.getChildNodes();
-			System.out.println("lengthhhhhhhhhhh");
-			System.out.println(child.getLength());
-			for(int j = 0; j < child.getLength(); j++ )
-			{
-				Node cnode = child.item(j);
-				System.out.println(j + " -");
-				System.out.println("getLocalName：");
-				System.out.println(cnode.getLocalName());
-				System.out.println("getNamespaceURI：");
-				System.out.println(cnode.getNamespaceURI());
-				System.out.println("NodeName:");
-				System.out.println(cnode.getNodeName());
-				System.out.println("NodeValue:");
-				System.out.println(cnode.getNodeValue());
-				System.out.println("TextContent");
-				System.out.println(cnode.getTextContent());
-			}
-		}
-			list = x.getChildNodes();
-		x = list.item(3);
-		System.out.println();
-		System.out.println("next level：");
-		System.out.println("getLocalName：");
-		System.out.println(x.getLocalName());
-		System.out.println("getNamespaceURI：");
-		System.out.println(x.getNamespaceURI());
-		System.out.println("NodeName:");
-		System.out.println(x.getNodeName());
-		System.out.println("NodeValue:");
-		System.out.println(x.getNodeValue());
-		for (int i = 0; i < list.getLength(); i++) {
-			Node employee = list.item(i);
-			NodeList info = employee.getChildNodes();
-			for (int j = 0; j < info.getLength(); j++) {
-				Node node = info.item(j);
-				NodeList employeeMeta = node.getChildNodes();
-				for (int k = 0; k < employeeMeta.getLength(); k++) {
-					System.out.println(employeeMeta.item(k).getNodeName()
-							+ ":" + employeeMeta.item(k).getTextContent());
-				}
-			}
-		}
-		parseNodes = new ParseMapNodes();
-		parseNodes.parseNode(list);
-		Node test = getFirstRealNode(list);
-
-		NodeList test2 = test.getChildNodes();
-		test = getFirstRealNode(test2);
-		while(test != null)
-		{
-			System.out.println(test.getNodeName());
-			test = getNextRealNode(test);
-		}
-	}
-
-	 */
 
 	//获取第一个真实的子结点
 	public Node getFirstRealNode(NodeList list)
@@ -193,7 +127,7 @@ public class XmlParser{
 		return null;
 	}
 
-	public Node getFirstTagNode(NodeList list, String tag)
+	public Node getFirstTagNode(NodeList list, final String tag)
 	{
 		Node child = getFirstRealNode(list);
 		Node target = child;
@@ -224,17 +158,49 @@ public class XmlParser{
 		}
 		return target;
 	}
-	
+
 	public String getTagValue(Node node, String vname)
 	{
 		return node.getAttributes().getNamedItem(vname).getNodeValue();
 	}
-	
+
 	public String getValueAttribute(Node node)
 	{
-		return node.getAttributes().getNamedItem("value").getNodeValue();
+		if(node.getAttributes().getLength() > 0)
+			return node.getAttributes().getNamedItem("value").getNodeValue();
+		else
+			return null;
 	}
 
+	public void refreshXml()
+	{
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer t;
+		try {
+			t = tf.newTransformer();
+
+			DOMSource source = new DOMSource(document);
+			StreamResult result = new StreamResult(new File(filepath));
+
+			t.transform(source, result);
+		} catch (TransformerConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+	}
+
+	public void setTagContext(String value, String tag) {
+		// TODO Auto-generated method stub
+		if(document.getElementsByTagName(tag) != null)
+		{
+			document.getElementsByTagName(tag).item(0).setTextContent(value);
+			refreshXml();
+		}
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -242,7 +208,6 @@ public class XmlParser{
 		//ps.readNodes(ps.getNodes("src\\xmls\\Map_Home.xml"));
 		NodeList list = ps.getNodes("src\\xmls\\Map_Home.xml");
 		Node root = ps.getFirstRealNode(list);
-		Node child = ps.getFirstRealNode(root.getChildNodes());
 		List<String> items = new LinkedList<String>();
 		items = ps.getChildTags(root, "item");
 		Random rand = new Random();
@@ -250,13 +215,5 @@ public class XmlParser{
 		System.out.println(items.get(i));
 		System.out.println();
 		System.out.println("ok?");
-		Node item = ps.getFirstTagNode(list, "item");
-		while(item != null)
-		{
-			System.out.println(item.getNodeName());
-			System.out.println(ps.getValueAttribute(item));
-			System.out.println(item.getTextContent());
-			item = ps.getNextTagNode(item);
-		}
 	}
 }
