@@ -1,7 +1,10 @@
 package mado.xml;
 
-import mado.MapInfo;
-import mado.Tags;
+
+import java.util.List;
+
+import mado.object.MapInfo;
+import mado.object.Tags;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -63,12 +66,79 @@ public class ParseMapNodes extends ParseNodes {
 		// TODO Auto-generated method stub
 		mapinfo.viewInfo();
 	}
-	
+
 	public MapInfo getMap()
 	{
 		return mapinfo;
 	}
-	
+
+
+	//判断是否探索过该物品或人或地图
+	public boolean isVisited(String name, String tag)
+	{
+		if(tag.equals(Tags.ITEM) || tag.equals(Tags.PERSON))
+		{
+			Node target = parser.getFirstTagNode(list, tag);
+			while(target != null)
+			{
+				if(target.getTextContent().equals(name) && parser.getTagAttribute(target, Tags.VISITED).equals(Tags.visited))
+				{
+					return true;
+				}
+				target = parser.getNextTagNode(target);
+			}
+		}
+		else
+		{
+			ParseConfigNodes config = new ParseConfigNodes();
+			Node target = config.getParser().getFirstTagNode(config.getNodeList(), tag);
+			while(target != null)
+			{
+				if(config.getParser().getTagAttribute(target, Tags.VALUE).equals(name) && config.getParser().getTagAttribute(target, Tags.VISITED).equals(Tags.visited))
+				{
+					return true;
+				}
+				target = config.getParser().getNextTagNode(target);
+			}
+		}
+		return false;
+	}
+
+	//设置为已探索
+	public void setVisited(String name, String tag)
+	{
+		if(tag.equals(Tags.MAP))
+		{
+			ParseConfigNodes config = new ParseConfigNodes();
+			Node target = config.getParser().getFirstTagNode(config.getNodeList(), tag);
+			while(target != null)
+			{
+				if(target.getAttributes().getNamedItem(Tags.VALUE).getTextContent().equals(name)
+						&& !parser.getTagAttribute(target, Tags.VISITED).equals(Tags.visited))
+				{
+					target.getAttributes().getNamedItem(Tags.VISITED).setTextContent(Tags.visited);
+					config.getParser().refreshXml();
+					break;
+				}
+				target = config.getParser().getNextTagNode(target);
+			}
+		}
+		else
+		{
+			Node target = parser.getFirstTagNode(list, tag);
+			while(target != null)
+			{
+				if(target.getTextContent().equals(name) 
+						&& !parser.getTagAttribute(target, Tags.VISITED).equals(Tags.visited))
+				{
+					parser.setTagAttribute(name, tag, Tags.VISITED, Tags.visited);
+					
+					break;
+				}
+				target = parser.getNextTagNode(target);
+			}
+		}
+	}
 
 
 	/**
@@ -78,6 +148,7 @@ public class ParseMapNodes extends ParseNodes {
 		// TODO Auto-generated method stub
 		ParseMapNodes map = new ParseMapNodes();
 		map.parseNodes("src\\xmls\\Map_Home.xml");
+		map.setVisited(Tags.BLOCKWORLD, Tags.MAP);
 		map.viewInfo();
 	}
 

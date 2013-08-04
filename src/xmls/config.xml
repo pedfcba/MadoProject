@@ -1,10 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<body>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><body>
     <dir>\src\xmls\</dir>
-    <effects value="effects">Effects.xml</effects>
+    <effects>Effects.xml</effects>
+    <classes>Classes.xml</classes>
     <maps>
-    	<map value="自家">Map_Home.xml</map>
-    	<map value="阳台">Map_Veranda.xml</map>
+    	<map value="自家" visited="1">Map_Home.xml</map>
+    	<map value="现实中的自家" visited="0">Map_RealHome.xml</map>
+    	<map value="现实中的阳台" visited="0">Map_RealVeranda.xml</map>
+    	<map value="最终的阳台" visited="0">Map_LastStage.xml</map>
+    	<map value="阳台" visited="1">Map_Veranda.xml</map>
+    	<map value="门房间" visited="1">Map_DoorRoom.xml</map>
+    	
+    	<map value="数字世界" visited="1">Map_NumberWorld.xml</map>
+    	<map value="森林世界" visited="0">Map_ForestWorld.xml</map>
+    	<map value="方块世界" visited="1">Map_BlockWorld.xml</map>
+    	<map value="积水世界" visited="1">Map_PuddleWorld.xml</map>
+    	<map value="黑暗世界" visited="0">Map_DarkWorld.xml</map>
+    	<map value="雪世界" visited="1">Map_SnowWorld.xml</map>
+    	<map value="壁画世界" visited="1">Map_MuralWorld.xml</map>
+    	<map value="涂鸦世界" visited="1">Map_GraffitiWorld.xml</map>
+    	<map value="眼球世界" visited="0">Map_EyeballWorld.xml</map>
+    	<map value="蜡烛世界" visited="0">Map_CandleWorld.xml</map>
+    	<map value="盾民族世界" visited="1">Map_ShieldFolkWorld.xml</map>
+    	<map value="霓虹世界" visited="0">Map_NeonWorld.xml</map>
+    	
+    	<map value="地下岔路口" visited="0">Map_MallOrSpace.xml</map>
     </maps>
     <persons>
     	<person value="附窗子">Person_Madotsuki.xml</person>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<home>
+    <name>现实中的自家</name>
+    <links>
+         <link visited = "0">现实中的阳台</link>
+    </links>
+    <items>
+        <item visited = "0">现实中的床</item>
+        <item visited = "0">现实中的椅子</item>
+        <item visited = "0">现实中的游戏机</item>
+        <item visited = "0">现实中的电视</item>
+        <item visited = "0">现实中的门</item>
+    </items>
+    <persons></persons>
+    <effects></effects>
+</home>

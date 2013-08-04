@@ -2,40 +2,48 @@ package mado.xml;
 
 import java.util.List;
 
-import mado.ConfigInfo;
-import mado.Tags;
+import javax.swing.text.html.HTML.Tag;
+
+
+import mado.object.ConfigInfo;
+import mado.object.Tags;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class ParseConfigNodes extends ParseNodes{
-	private ConfigInfo config;
+	private static ConfigInfo config;
 	
 	public ParseConfigNodes()
 	{
-		list = parser.getNodes(Tags.configfile);
 		config = new ConfigInfo();
 		init();
 	}
 	
+	public XmlParser getParser()
+	{
+		return parser;
+	}
+	
 	private void init()
 	{
+		list = parser.getNodes(System.getProperty("user.dir") + Tags.configfile);
 		if(list != null && list.getLength() > 0)
 		{
 			Node effect = parser.getFirstTagNode(list, Tags.MAP);
 			while(effect != null)
 			{
-				config.addMap(parser.getValueAttribute(effect));
+				config.addMap(parser.getTagAttribute(effect, Tags.VALUE));
 				effect = parser.getNextTagNode(effect);
 			}
 			effect = parser.getFirstTagNode(list, Tags.PERSON);
 			while(effect != null)
 			{
-				config.addPerson(parser.getValueAttribute(effect));
+				config.addPerson(parser.getTagAttribute(effect, Tags.VALUE));
 				effect = parser.getNextTagNode(effect);
 			}
 			effect = parser.getFirstTagNode(list, Tags.DIR);
-			//¾ø¶ÔµØÖ·Ç°×º
+			//ï¿½ï¿½Ôµï¿½Ö·Ç°×º
 			String dir = System.getProperty("user.dir") + effect.getTextContent();
 			config.addDir(dir);
 		}
@@ -59,19 +67,22 @@ public class ParseConfigNodes extends ParseNodes{
 	public String getAdress(String name)
 	{
 		Node node = parser.getFirstTagNode(list, Tags.EFFECTS);
-		if(parser.getValueAttribute(node).equals(name))
+		if(node.getNodeName().equals(name))
+			return config.getDir() + node.getTextContent();
+		node = parser.getFirstTagNode(list, Tags.CLASSES);
+		if(node.getNodeName().equals(name))
 			return config.getDir() + node.getTextContent();
 		node = parser.getFirstTagNode(list, Tags.MAP);
 		while(node != null)
 		{
-			if(parser.getValueAttribute(node).equals(name))
+			if(parser.getTagAttribute(node, Tags.VALUE).equals(name))
 				return config.getDir() + node.getTextContent();
 			node = parser.getNextTagNode(node);
 		}
 		node = parser.getFirstTagNode(list, Tags.PERSON);
 		while(node != null)
 		{
-			if(parser.getValueAttribute(node).equals(name))
+			if(parser.getTagAttribute(node, Tags.VALUE).equals(name))
 				return config.getDir() + node.getTextContent();
 			node = parser.getNextTagNode(node);
 		}
@@ -82,7 +93,7 @@ public class ParseConfigNodes extends ParseNodes{
 	public void viewInfo() {
 		// TODO Auto-generated method stub
 		System.out.println("Dir:");
-		System.out.println(this.config.getDir());
+		System.out.println(config.getDir());
 		System.out.println("Maps:");
 		for(int i = 0; i < config.getMaps().size(); i++)
 			System.out.println(config.getMaps().get(i));
@@ -99,14 +110,6 @@ public class ParseConfigNodes extends ParseNodes{
 		// TODO Auto-generated method stub
 		ParseConfigNodes cf = new ParseConfigNodes();
 		cf.viewInfo();
-		System.out.println(cf.getAdress("ÑôÌ¨"));
-		System.out.println(cf.getAdress("¸½´°×Ó"));
-	}
-
-	@Override
-	public NodeList parseNodes(String filename) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

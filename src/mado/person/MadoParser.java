@@ -1,116 +1,201 @@
 package mado.person;
 
+import weibo4j.Account;
+import weibo4j.Timeline;
+import weibo4j.Users;
+import weibo4j.Weibo;
+import weibo4j.model.Status;
+import weibo4j.model.User;
+import weibo4j.model.WeiboException;
+
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import mado.AllEffect;
-import mado.Effect;
-import mado.MapInfo;
-import mado.PersonInfo;
+import mado.object.AllEffect;
+import mado.object.MapInfo;
+import mado.object.Tags;
+import mado.speak.SpeakBehavior;
 import mado.xml.ParseConfigNodes;
+import mado.xml.ParseEffectNodes;
 import mado.xml.ParseMapNodes;
 import mado.xml.ParsePersonNodes;
 
-public class MadoParser{
-	PersonInfo personinfo;
-	MapInfo mapinfo;
-	ParseConfigNodes config;
-	ParseMapNodes map;
-	ParsePersonNodes person;
-	SpeakBehavior speak;
 
-	
+public class MadoParser{
+	private static ParseConfigNodes config;
+	private static ParseMapNodes map;
+	private static ParsePersonNodes person;
+	private static MadoSpeak speaker;
+	Random rand = new Random();
+	private String lastsentence;
+
+
 	public void wakeUp()
 	{
-		if(!personinfo.isWaking())
-		{
-			personinfo.wakUp();
-			person.refreshXml();
-		}
+		person.getPerson().setWake(Tags.wake);
 	}
-	
+
 	public MadoParser()
 	{
 		config = new ParseConfigNodes();
-		personinfo = new PersonInfo();
-		mapinfo = new MapInfo();
 		map = new ParseMapNodes();
 		person = new ParsePersonNodes();
+		speaker = new MadoSpeak();
+		lastsentence = "";
 	}
 
 	public void createPerson(String name)
 	{
 		person.parseNodes(config.getAdress(name));
-		personinfo = person.getPerson();
-		map.parseNodes(config.getAdress(personinfo.getLocation()));
-		mapinfo = map.getMap();
+		map.parseNodes(config.getAdress(person.getPerson().getLocation()));
 	}
-	
-	public MapInfo changeMap(String name)
-	{
-		mapinfo.clear();
-		map.parseNodes(config.getAdress(name));
-		return map.getMap();
-	}
-	
 
-	public void randMove()
+	public void changeMap(String name)
 	{
-		Random rand = new Random();
-		int r = rand.nextInt(mapinfo.getLinkinfo().size());
-		//¿É´ï³¡¾°Êı´óÓÚ1ÇÒÑ¡ÖĞÉÏÒ»¸ö³¡¾°µÄ£¬ÖØĞÂÑ¡È¡
-		while(mapinfo.getLinkinfo().size() > 1 && mapinfo.getLinkinfo().get(r).equals(personinfo.getPriorLocation()))
-			r = rand.nextInt(mapinfo.getLinkinfo().size());
-		personinfo.moveLocation(mapinfo.getLinkinfo().get(r));
-		mapinfo = changeMap(personinfo.getLocation());
-		person.refreshXml();
+		map.parseNodes(config.getAdress(name));
 	}
-	
+
 	public void pickEffect()
 	{
-		List<String> effects = mapinfo.getEffectinfo();
+		List<String> effects = map.getMap().getEffectinfo();
 		for(int i = 0; i < effects.size(); i++)
-			personinfo.addEffect(effects.get(i));
+			person.getPerson().addEffect(effects.get(i));
 		person.refreshXml();
 	}
 
-	
+
 	public void viewInfo()
 	{
-		System.out.println("ÈËÎï£º");
-		personinfo.viewInfo();
+		System.out.println("äººç‰©ï¼š");
+		person.getPerson().viewInfo();
 		System.out.println();
-		System.out.println("³¡¾°£º");
-		mapinfo.viewInfo();
+		System.out.println("åœ°å›¾ï¼š");
+		map.getMap().viewInfo();
 	}
+
+	public String performActivity()
+	{
+		String sentence = "";
+		sentence = speaker.speak(map, person);
+		//System.out.println(sentence);
+		if(!lastsentence.equals(sentence))
+			lastsentence = sentence;
+		else
+			return performActivity();
+		return sentence;
+	}
+
+	public String getEffects()
+	{	
+		ParseEffectNodes effect = new ParseEffectNodes();
+		LinkedList<String> link = (LinkedList<String>) effect.getEffectList(person.getPerson().getEffects());
+		String effects = "ç›®å‰æ”¶é›†åˆ°çš„EFFECTï¼š";
+		if(!link.isEmpty())
+		{
+			int j = 0;
+			for(; j < link.size()-1; j++)
+			{
+				effects += link.get(j)+ "ã€";
+			}
+			effects += link.get(j);
+			effects += "ã€‚å·²ç»æœ‰" + link.size() + "ä¸ªäº†~";
+		}
+		else
+			effects += "ä¸€ä¸ªéƒ½æ²¡æœ‰å‘¢ã€‚ã€‚ã€‚";
+		return effects;
+	}
+
+	//å‘é€å¾®åš
+	private void sendTweet(String accessToken, long remainseconds) {
+		// TODO Auto-generated method stub
+		Weibo weibo = new Weibo();
+		weibo.client.setToken(accessToken);
+		Timeline timeline = new Timeline();
+		timeline.client.setToken(accessToken);
+		Random rand = new Random();
+		//è·å–å‰©ä½™æ¬¡æ•°éœ€è¦Accountå¯¹è±¡
+		Account am = new Account();
+		am.client.setToken(accessToken);
+		int refresh = rand.nextInt(160000);
+		remainseconds *= 1000;
+		try {
+			int count = 0;
+			while(remainseconds > 0)
+			{
+				//ä¸€å°æ—¶çš„è®¡æ•°å™¨ï¼Œè‹¥å‰©ä½™æ—¶é—´ä¸è¶³ä¸€å°æ—¶ï¼Œæ›¿æ¢æˆå‰©ä½™æ—¶é—´
+				long hour = 3600000;
+				if(hour > remainseconds)
+					hour = remainseconds;
+				//å‰©ä½™é™åˆ¶æ¬¡æ•°
+				long limit = am.getAccountRateLimitStatus().getApiRateLimit().get(0).getRemainingHits();
+				//ä¸€å°æ—¶å†…å‘å‡ºlimitæ¡å¾®åš
+				while(limit > 0)
+				{
+					count++;
+					if(count % 20 == 0)
+					{
+						timeline.UpdateStatus(getEffects());
+					}
+					else
+						timeline.UpdateStatus(performActivity());
+					//å¹³å‡æ¯æ¬¡é—´éš”çš„ä¸Šé™
+					int reflimit = (int)(hour/limit);
+					refresh = rand.nextInt(reflimit);
+					while(refresh < 60000 && reflimit >= 60000)
+					{
+						refresh = rand.nextInt(reflimit);
+					}
+					remainseconds -= refresh;
+					System.out.println("sleep: " + refresh);
+					System.out.println("limit: " + limit);
+					if(hour > refresh)
+						hour -= refresh;
+					else
+						break;
+					Thread.sleep(refresh);
+					limit = am.getAccountRateLimitStatus().getApiRateLimit().get(0).getRemainingHits();
+				}
+				if(limit > 0)
+					timeline.UpdateStatus(performActivity());
+				if(hour > 0)
+					Thread.sleep(hour);
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (WeiboException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+
 		MadoParser mado = new MadoParser();
-		mado.createPerson("¸½´°×Ó");
-		System.out.println("ÔË¶¯Ç°£º");
-		System.out.println();
-		mado.pickEffect();
-		mado.viewInfo();
-		mado.randMove();
-		System.out.println();
-		System.out.println();
-		System.out.println("ÔË¶¯ºó£º");
-		System.out.println();
-		mado.pickEffect();
-		mado.viewInfo();
-		mado.randMove();
-		System.out.println();
-		System.out.println("ÔÙ´ÎÔË¶¯ºó£º");
-		mado.pickEffect();
-		mado.viewInfo();
-		System.out.println();
-		mado.randMove();
-		System.out.println("ÔÙ2´ÎÔË¶¯ºó£º");
-		mado.pickEffect();
-		mado.viewInfo();
+		mado.createPerson("é™„çª—å­");
+
+		/*				for(int i = 1; i < 100; i++)
+		{
+			System.out.println(mado.performActivity());
+		}
+		while(!mado.person.getPerson().isWaking())
+		{
+			System.out.println(mado.performActivity());
+		}
+		System.out.println(mado.getEffects());
+
+		 */
+
+		String accessToken = "2.009LT_VDOayDYE70c8cd9cdd4Bk_7C";
+		//String status = "ç¯ä¸‹çš„æˆ‘ï¼Œåœ¨å†™æ—¥è®°";
+		mado.sendTweet(accessToken, 3600);
+
 	}
+
 }

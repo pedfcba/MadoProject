@@ -17,6 +17,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import mado.object.Tags;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -68,7 +70,7 @@ public class XmlParser{
 		return nodes;
 	}
 
-	//»ñÈ¡µÚÒ»¸öÕæÊµµÄ×Ó½áµã
+	//ï¿½ï¿½È¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½Ó½ï¿½ï¿½
 	public Node getFirstRealNode(NodeList list)
 	{
 		Node target = null;
@@ -86,7 +88,7 @@ public class XmlParser{
 		return target;
 	}
 
-	//»ñÈ¡ÏÂÒ»¸öº¬±êÇ©µÄ½áµã
+	//ï¿½ï¿½È¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½Ä½ï¿½ï¿½
 	public Node getNextRealSibling(Node node)
 	{
 		Node target = node.getNextSibling();
@@ -99,7 +101,7 @@ public class XmlParser{
 		return target;
 	}
 
-	//»ñÈ¡node×Ó½áµãÏÂtag±êÇ©µÄÄÚÈÝÁÐ±í
+	//ï¿½ï¿½È¡nodeï¿½Ó½ï¿½ï¿½ï¿½ï¿½tagï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
 	public List<String> getChildTags(Node node, String tag)
 	{
 		List<String> list = new LinkedList<String>();
@@ -158,18 +160,28 @@ public class XmlParser{
 		}
 		return target;
 	}
-
-	public String getTagValue(Node node, String vname)
+	
+	public void setFirstTagContext(String name, String tag)
 	{
-		return node.getAttributes().getNamedItem(vname).getNodeValue();
+		NodeList targets = document.getElementsByTagName(tag);
+		targets.item(0).setTextContent(name);
 	}
 
-	public String getValueAttribute(Node node)
+	/*
+	public String getValueAtribute(Node node)
 	{
 		if(node.getAttributes().getLength() > 0)
-			return node.getAttributes().getNamedItem("value").getNodeValue();
+			return node.getAttributes().getNamedItem(Tags.VALUE).getNodeValue();
 		else
 			return null;
+	}
+	 */
+	public String getTagAttribute(Node node, String attribute)
+	{
+		if(node.getAttributes().getLength() > 0)
+			return node.getAttributes().getNamedItem(attribute).getNodeValue();
+		else
+			return "";
 	}
 
 	public void refreshXml()
@@ -193,13 +205,22 @@ public class XmlParser{
 		} 
 	}
 
-	public void setTagContext(String value, String tag) {
+	public void setTagAttribute(String name, String tag, String attrtag, String attrvalue) 
+	{
 		// TODO Auto-generated method stub
-		if(document.getElementsByTagName(tag) != null)
-		{
-			document.getElementsByTagName(tag).item(0).setTextContent(value);
-			refreshXml();
-		}
+		NodeList targets = document.getElementsByTagName(tag);
+			if(targets.getLength() != 0)
+			{
+				for(int i = 0; i < targets.getLength(); i++)
+				{
+					if(targets.item(i).getTextContent().equals(name))
+					{
+						document.getElementsByTagName(tag).item(i).getAttributes().getNamedItem(attrtag).setTextContent(attrvalue);
+						break;
+					}
+				}
+				refreshXml();
+			}
 	}
 
 	public static void main(String[] args) {

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <veranda>
-    <name>阳台</name>
+    <name>现实中的阳台</name>
     
     <links>
-        <link>自家</link> 
+        <link visited = "0">现实中的自家</link> 
     </links>
     
     <effects></effects>
     
-    <items>台阶</items>
+    <items></items>
     
     <persons></persons>
 </veranda>
